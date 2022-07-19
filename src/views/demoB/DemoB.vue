@@ -1,7 +1,15 @@
+<!--
+* @Description: gltf模型导入 改变车身颜色
+* @Author: lsa
+* @Date: 2022-07-18
+* @LastEditors: lsa
+* @LastEditTime: 2022-07-19
+-->
+
 <template>
   <div>
     <div id="three" ref="three"></div>
-    <div class="color-set">
+    <div class="color-set" v-show="false">
       <h1>修改车身颜色</h1>
       <div class="color-container">
         <div v-for="(item, index) in colors" :key="index">
@@ -36,12 +44,10 @@ export default {
         "black",
         "white",
       ],
-      carBody: null,
     };
   },
   mounted() {
-    let scene, camera, renderer, controls, container;
-    let carBody;
+    let scene, camera, renderer, controls, container; // 定义变量
     let bodyMaterial = new THREE.MeshPhysicalMaterial({
       color: "#000",
       metalness: 1, // 金属度
@@ -49,7 +55,7 @@ export default {
       clearcoat: 1, //清漆度
       clearcoatRoughness: 0, //清漆粗糙度
     });
-    container = this.$refs.three;
+    container = this.$refs.three; // 容器
 
     // 场景
     scene = new THREE.Scene();
@@ -60,40 +66,36 @@ export default {
       window.innerWidth / window.innerHeight,
       0.1,
       1000
-    );
-    camera.position.set(0, 2, 6);
-    camera.lookAt(scene.position);
+    ); // fov, aspect, near, far 视角，宽高比，近平面，远平面
+    camera.position.set(0, 2, 6); // 设置相机位置
+    camera.lookAt(scene.position); // 相机视点
 
     // 渲染器
     renderer = new THREE.WebGLRenderer({ antialias: true }); //antialias 抗锯齿
     renderer.setSize(window.innerWidth, window.innerHeight); // 画面宽高
     renderer.setClearColor("#000"); // 设置画面颜色
-    container.appendChild(renderer.domElement);
+    container.appendChild(renderer.domElement); // 将画面添加到容器中
 
     scene.background = new THREE.Color("#ccc"); // 设置场景背景颜色
-    scene.environment = new THREE.Color("#ccc"); // 设置环境光颜色
-
+    scene.environment = new THREE.Color("#ff0000"); // 设置环境光颜色
+    scene.fog = new THREE.Fog(scene.background, 0, 20); // 设置雾化效果
     // 添加网格地面
     let gridHelper = new THREE.GridHelper(10, 10); // 创建一个网格帮助器，参数为网格的宽度和高度
     scene.add(gridHelper);
-    gridHelper.material.opacity = 0.5; // 设置网格的透明度
-    gridHelper.material.transparent = true; // 设置网格的透明度
+    gridHelper.material.transparent = true; // 开启网格帮助器的透明度
+    gridHelper.material.opacity = 0.5; // 设置网格帮助器的透明度
 
     // 添加控制器
     controls = new OrbitControls(camera, renderer.domElement);
     // controls.autoRotate = true; // 自动旋转
     controls.enableDamping = true; // 启用阻尼
-    controls.dampingFactor = 0.25; // 阻尼系数
+    // controls.dampingFactor = 0.5; // 阻尼系数
     // controls.enableZoom = true; // 启用缩放
     // controls.minDistance = 3; // 最小距离
     // controls.maxDistance = 10; // 最大距离
-    controls.minPolarAngle = 0; // 最小绕y轴角度
-    // controls.maxPolarAngle = Math.PI / 2; // 最大绕y轴角度
-    controls.zoomSpeed = 0.3
-
-    // 添加坐标
-    let axesHelper = new THREE.AxesHelper(10); // 创建一个坐标帮助器，参数为坐标的长度
-    // scene.add(axesHelper);
+    controls.minPolarAngle = 0.5; // 最小绕y轴角度
+    controls.maxPolarAngle = 1.35; // 最大绕y轴角度
+    controls.zoomSpeed = 0.3; // 缩放速度
 
     // 添加glft汽车模型
     let loader = new GLTFLoader(); // 创建一个加载器

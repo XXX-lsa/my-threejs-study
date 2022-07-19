@@ -1,3 +1,10 @@
+<!--
+* @Description: threejs basic demo
+* @Author: lsa
+* @Date: 2022-07-18
+* @LastEditors: lsa
+* @LastEditTime: 2022-07-19
+-->
 <template>
   <div id="three" ref="three"></div>
 </template>
@@ -5,8 +12,6 @@
 <script>
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-// import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-// import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 export default {
   name: "DemoA",
   data() {
@@ -15,96 +20,66 @@ export default {
     };
   },
   mounted() {
-    const container = this.$refs.three;
+    const container = this.$refs.three; // 容器
+
     const renderer = new THREE.WebGLRenderer({ antialias: true }); //antialias 抗锯齿
     renderer.shadowMap.enabled = true; // 开启阴影
     renderer.setSize(window.innerWidth, window.innerHeight); // 画面宽高
-    container.appendChild(renderer.domElement);
-    const scene = new THREE.Scene();
-    
+    container.appendChild(renderer.domElement); // 将画面添加到容器中
+
+    const scene = new THREE.Scene(); // 场景
+
     const camera = new THREE.PerspectiveCamera(
       100,
       window.innerWidth / window.innerHeight,
       0.1,
       1000
-    );
-    // const camera = new THREE.OrthographicCamera(
-    //   (window.innerWidth / window.innerHeight) * 200,
-    //   (window.innerWidth / window.innerHeight) * -200,
-    //   200,
-    //   -200,
-    //   1,
-    //   1000
-    // );
-    camera.position.set(-45, 60, 45);
-    // camera.position.set(200, 300, 200);
-    camera.lookAt(scene.position);
+    ); // 相机
+    camera.position.set(-45, 60, 45); // 相机位置
+    camera.lookAt(scene.position); // 相机方向
+
+    const controls = new OrbitControls(camera, container); // 加入控制器
 
     const axesHelp = new THREE.AxesHelper(100); // 加入坐标系
-    scene.add(axesHelp);
+    scene.add(axesHelp); // 将坐标系添加到场景中
 
     const pointLight = new THREE.PointLight("#fff"); // 加入点光源
-    pointLight.position.set(100, 200, 100);
-    pointLight.castShadow = true;
-    pointLight.shadow.mapSize.set(2048, 2048);
-    let pointHelp = new THREE.PointLightHelper(pointLight, 50);
-    scene.add(pointHelp);
-    const ambienLight = new THREE.AmbientLightProbe();
-    scene.add(pointLight, ambienLight);
+    pointLight.position.set(100, 200, 100); // 设置点光源位置
+    pointLight.castShadow = true; // 开启阴影
+    pointLight.shadow.mapSize.set(2048, 2048); // 设置阴影大小
 
-    let plane = new THREE.PlaneGeometry(500, 300); //一个平面
-    let box = new THREE.BoxGeometry(50, 50, 50); // 一个立方体
+    let pointHelp = new THREE.PointLightHelper(pointLight, 50); // 加入点光源辅助线
+    scene.add(pointHelp); // 将点光源辅助线添加到场景中
 
-    let boxMaterial = new THREE.MeshLambertMaterial({
-      color: "#333",
-    });
+    const ambienLight = new THREE.AmbientLightProbe(); // 加入环境光源
+    scene.add(pointLight, ambienLight); // 将点光源和环境光源添加到场景中
+
+    let plane = new THREE.PlaneGeometry(500, 300); // 加入平面
     let planeMaterial = new THREE.MeshLambertMaterial({
       color: "#666",
       side: THREE.DoubleSide,
-    });
-    let planeMesh = new THREE.Mesh(plane, planeMaterial);
-    let boxMesh = new THREE.Mesh(box, boxMaterial);
-    scene.add(planeMesh, boxMesh);
-    // planeMesh.rotation.x = Math.PI * -0.5;
-    planeMesh.rotateX(Math.PI * -0.5);
-    planeMesh.receiveShadow = true;
-    planeMesh.position.set(0, -1, 0);
-    boxMesh.position.set(0, 26, 0);
-    boxMesh.castShadow = true;
-    const controls = new OrbitControls(camera, container);
+    }); // 平面材质
+    let planeMesh = new THREE.Mesh(plane, planeMaterial); // 平面
+    planeMesh.rotateX(Math.PI * -0.5); // 旋转平面
+    planeMesh.receiveShadow = true; // 接受阴影
+    planeMesh.position.set(0, -1, 0); // 设置平面位置
+
+    let box = new THREE.BoxGeometry(50, 50, 50); // 加入立方体
+    let boxMaterial = new THREE.MeshLambertMaterial({
+      color: "#333",
+    }); // 立方体材质
+    let boxMesh = new THREE.Mesh(box, boxMaterial); // 立方体
+    boxMesh.position.set(0, 26, 0); // 设置立方体位置
+    boxMesh.castShadow = true; // 开启阴影
+
+    scene.add(planeMesh, boxMesh); // 将平面和立方体添加到场景中
 
     let render = () => {
       renderer.render(scene, camera);
       controls.update();
-      this.timer = requestAnimationFrame(render);
+      requestAnimationFrame(render);
     };
-
     render();
-    let distance = 2.5;
-    document.onkeydown = (key) => {
-      // console.log(key.key);
-      switch (key.key) {
-        case "a":
-          boxMesh.translateX(-distance);
-          break;
-        case "d":
-          boxMesh.translateX(distance);
-          break;
-        case "w":
-          boxMesh.translateZ(-distance);
-          break;
-        case "s":
-          boxMesh.translateZ(distance);
-          break;
-        default:
-          break;
-      }
-    };
-    // window.addEventListener();
-  },
-  beforeDestroy() {
-    cancelAnimationFrame(this.timer);
-    this.timer = null;
   },
   methods: {},
 };
